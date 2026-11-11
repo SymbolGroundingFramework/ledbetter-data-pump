@@ -20,14 +20,20 @@ $ErrorActionPreference = 'Continue'
 $mingw = 'C:\Strawberry\c\bin'
 $cargoBin = Join-Path $env:USERPROFILE '.cargo\bin'
 
-if (-not (Test-Path (Join-Path $mingw 'gcc.exe'))) {
-    throw "MinGW gcc not found at $mingw - the gnu toolchain cannot link without it"
-}
 if (-not (Test-Path (Join-Path $cargoBin 'cargo.exe'))) {
-    throw "cargo not found at $cargoBin - run the rustup installer first (ENVIRONMENT.md)"
+    throw "cargo not found at $cargoBin - install Rust first (see ENVIRONMENT.md)"
 }
 
-$env:PATH = "$mingw;$cargoBin;$env:PATH"
+# On this machine the gnu toolchain links with the MinGW bundled in Strawberry
+# Perl. Anywhere else that directory is absent and the installed toolchain
+# (usually MSVC) works as-is — so a missing MinGW is not an error, only a
+# reason not to prepend it.
+if (Test-Path (Join-Path $mingw 'gcc.exe')) {
+    $env:PATH = "$mingw;$cargoBin;$env:PATH"
+}
+else {
+    $env:PATH = "$cargoBin;$env:PATH"
+}
 $ldp = Join-Path (Split-Path -Parent $PSScriptRoot) 'ldp'
 Push-Location $ldp
 try {
