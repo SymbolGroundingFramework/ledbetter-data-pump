@@ -12,14 +12,8 @@ delivered so the code can always be checked against it.
 | [LDP_YAML_User_Guide.md](LDP_YAML_User_Guide.md) | how to author a `pipeline.yaml` |
 | [LDP_Roadmap.md](LDP_Roadmap.md) | Phase 1 → 4 sequencing |
 
-PDF copies of each document are included for offline reading.
-
-## Not the spec
-
-- `phase1-package/` — the original download the project started from (same
-  documents, plus its own `examples/`). Kept for provenance.
-- `history/` — the design-session transcript and the Gemini chat export. Useful
-  for "why is it like this?", not authoritative.
+PDF copies of the build contract and the failure-modes addendum are included
+for offline reading.
 
 Where the implementation knowingly differs from the contract, the reason is
 recorded in [../PLAN.md](../PLAN.md) §5 ("deviations register") rather than

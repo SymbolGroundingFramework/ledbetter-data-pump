@@ -42,7 +42,6 @@ the *toolchain*, which is what matters.)
 | Test database / table | `ldp` / `customers` (1,000,000 rows), `empty_table` |
 | Pipeline output | `out\<pipeline>\` |
 | Checkpoint state | `.ldp\<pipeline>.json` |
-| Reference package | `docs\phase1-package\` (unzipped original delivery) |
 
 ## Dependency versions that matter
 

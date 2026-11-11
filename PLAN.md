@@ -1,7 +1,7 @@
 # PLAN.md — Ledbetter Data Pump
 
 Strategy and rationale. Status lives in `STATE.md`; permanent conclusions in
-`LESSONS.md`; the authoritative task list is `studio.db` (`plan.py show`).
+`LESSONS.md`.
 
 ## 1. Objective
 
