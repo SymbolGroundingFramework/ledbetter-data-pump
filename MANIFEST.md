@@ -19,7 +19,8 @@ Last verified: 2026-11-10.
 | `CONTRIBUTING.md` | ground rules, setup, the pre-PR gate |
 | `LICENSE` | MIT |
 | `studio.db` | plan tracking (`plan_items`/`plan_events`) — authoritative task status via `scripts\plan.py` |
-| `.gitignore` | ignores `ldp/target`, `out`, `.ldp`, `.toolchain`, caches |
+| `.gitignore` | ignores `target/`, `out/`, `.ldp/`, `.toolchain/`, caches |
+| `.gitattributes` | line-ending policy (LF in repo, CRLF for `.ps1`) and binary markers |
 
 ## Folders
 

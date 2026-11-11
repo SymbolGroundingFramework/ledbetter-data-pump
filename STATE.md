@@ -46,14 +46,21 @@ Full gate: `.\scripts\test.ps1` → **39/39 DoD checks, ALL GATES PASSED**.
 
 ## Publication status (2026-11-10)
 
-Repo is **publishable as a v0.1.0 preview**: `LICENSE` (MIT), `CHANGELOG.md`,
-`CONTRIBUTING.md`, `docs/README.md` index, `.github/workflows/ci.yml`
-(fmt + clippy + unit tests + integration tests against a Postgres service), and
-the tree is `cargo fmt` clean. `README.md` now states the limits plainly — in
-particular that **TLS is missing**, so cloud endpoints are not reachable yet.
+Git initialised on `main`: first commit `4b1b7c0`, tag `v0.1.0`, 83 tracked
+files (1.0 MB). `target/`, `out/`, `.ldp/`, `.toolchain/` are ignored, and a
+fresh `git clone` builds and passes the same gate CI runs.
 
-Not published: no git repository initialised, no release binaries, no crates.io
-metadata (`repository`/`homepage` still unset — fill in the GitHub URL first).
+Hygiene in place: `LICENSE` (MIT), `CHANGELOG.md`, `CONTRIBUTING.md`,
+`.github/workflows/ci.yml` (fmt + clippy + unit + Postgres integration +
+smoke pipeline), `docs/README.md` index, `docs/history/` for the chat exports,
+`.gitattributes` to keep line endings stable, `cargo fmt` clean.
+
+**Still to do before it is public:**
+- push to GitHub (no remote or credentials are configured here);
+- the commit author is a placeholder (`James Lee Stakelum <james@localhost>`) —
+  after setting the real identity, run
+  `git commit --amend --reset-author --no-edit` and re-tag `v0.1.0`;
+- optionally fill `repository`/`homepage` in `ldp/Cargo.toml`.
 
 ## Next actions (ordered)
 
