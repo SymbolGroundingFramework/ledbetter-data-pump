@@ -1,0 +1,17 @@
+# Build artefacts and scratch state — never commit these.
+# Unanchored: these directories appear at the repo root and inside ldp/
+# (the CI smoke test runs from ldp/, so it creates ldp/out and ldp/.ldp).
+target/
+out/
+.ldp/
+.toolchain/
+__pycache__/
+*.pyc
+*.log
+*.tmp
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

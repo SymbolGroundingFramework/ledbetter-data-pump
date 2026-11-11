@@ -1,0 +1,16 @@
+﻿[package]
+name = "ldp-parquet"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+tokio.workspace = true
+arrow.workspace = true
+parquet.workspace = true
+ldp-core = { path = "../../ldp-core" }
+ldp-arrow = { path = "../../ldp-arrow" }
+
+[dev-dependencies]
+tempfile = "3"

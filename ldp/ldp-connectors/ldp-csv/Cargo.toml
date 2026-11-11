@@ -1,0 +1,18 @@
+﻿[package]
+name = "ldp-csv"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+chrono = { version = "0.4", features = ["clock"] }
+csv.workspace = true
+tokio.workspace = true
+arrow.workspace = true
+ldp-core = { path = "../../ldp-core" }
+ldp-arrow = { path = "../../ldp-arrow" }
+
+[dev-dependencies]
+tempfile = "3"
+

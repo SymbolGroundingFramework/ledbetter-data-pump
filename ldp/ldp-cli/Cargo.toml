@@ -1,0 +1,25 @@
+﻿[package]
+name = "ldp-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ldp"
+path = "src/main.rs"
+
+[dependencies]
+tokio.workspace = true
+ldp-core = { path = "../ldp-core" }
+ldp-config = { path = "../ldp-config" }
+ldp-arrow = { path = "../ldp-arrow" }
+ldp-postgres = { path = "../ldp-connectors/ldp-postgres" }
+ldp-parquet = { path = "../ldp-connectors/ldp-parquet" }
+ldp-csv = { path = "../ldp-connectors/ldp-csv" }
+
+[dev-dependencies]
+tokio-postgres.workspace = true
+parquet.workspace = true
+arrow.workspace = true
+serde_json.workspace = true
+tempfile = "3"

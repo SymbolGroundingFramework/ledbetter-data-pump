@@ -1,0 +1,21 @@
+﻿[package]
+name = "ldp-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+arrow.workspace = true
+async-trait.workspace = true
+futures-core.workspace = true
+futures-util.workspace = true
+chrono = { version = "0.4", features = ["clock"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+ldp-arrow = { path = "../ldp-arrow" }
+
+[dev-dependencies]
+tempfile = "3"

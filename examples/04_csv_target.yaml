@@ -1,0 +1,36 @@
+version: "1.0"
+pipeline:
+  name: "dual_target"
+  description: "Same stage written to Parquet and CSV in one pass."
+  settings:
+    max_threads: 4
+    state_file: ".ldp/dual_target.json"
+  resources:
+    connections:
+      - name: "pg"
+        type: "postgres"
+        url: "env://LDP_PG_URL"
+  dataflow:
+    sources:
+      - id: "src"
+        connection: "pg"
+        query: "SELECT id, name, status, amount, created_at, region, unit_price FROM customers"
+        partitioning:
+          type: "range"
+          column: "id"
+          chunks: 8
+    transformations:
+      - id: "active_only"
+        input: "src"
+        type: "filter"
+        condition: "status = 'ACTIVE'"
+    targets:
+      - id: "parquet_out"
+        input: "active_only"
+        type: "parquet"
+        path: "./out/dual_target/"
+        compression: "snappy"
+      - id: "csv_out"
+        input: "active_only"
+        type: "csv"
+        path: "./out/dual_target.csv"

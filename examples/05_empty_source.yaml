@@ -1,0 +1,27 @@
+version: "1.0"
+pipeline:
+  name: "empty_source"
+  description: "Empty table: zero partitions, zero rows, still a valid Parquet file."
+  settings:
+    max_threads: 2
+    state_file: ".ldp/empty_source.json"
+  resources:
+    connections:
+      - name: "pg"
+        type: "postgres"
+        url: "env://LDP_PG_URL"
+  dataflow:
+    sources:
+      - id: "src"
+        connection: "pg"
+        query: "SELECT id, note FROM empty_table"
+        partitioning:
+          type: "range"
+          column: "id"
+          chunks: 4
+    targets:
+      - id: "out"
+        input: "src"
+        type: "parquet"
+        path: "./out/empty_source/"
+        compression: "none"

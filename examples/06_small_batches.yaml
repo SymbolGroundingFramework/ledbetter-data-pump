@@ -1,0 +1,29 @@
+version: "1.0"
+pipeline:
+  name: "small_batches"
+  description: "Same copy with tight batch limits: proves max_batch_rows/max_batch_bytes are enforced."
+  settings:
+    max_threads: 4
+    state_file: ".ldp/small_batches.json"
+    max_batch_rows: 20000
+    max_batch_bytes: 1000000
+  resources:
+    connections:
+      - name: "pg"
+        type: "postgres"
+        url: "env://LDP_PG_URL"
+  dataflow:
+    sources:
+      - id: "src"
+        connection: "pg"
+        query: "SELECT id, name, status, amount, created_at, region, unit_price FROM customers"
+        partitioning:
+          type: "range"
+          column: "id"
+          chunks: 8
+    targets:
+      - id: "out"
+        input: "src"
+        type: "parquet"
+        path: "./out/small_batches/"
+        compression: "none"

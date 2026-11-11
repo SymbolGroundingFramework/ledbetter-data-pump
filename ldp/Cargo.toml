@@ -1,0 +1,40 @@
+[workspace]
+resolver = "2"
+members = [
+    "ldp-arrow",
+    "ldp-core",
+    "ldp-config",
+    "ldp-connectors/ldp-postgres",
+    "ldp-connectors/ldp-parquet",
+    "ldp-connectors/ldp-csv",
+    "ldp-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "A YAML-driven, restartable data movement engine: Postgres to Parquet/CSV over partitioned Arrow workers"
+keywords = ["database", "etl", "pipeline", "parquet", "arrow"]
+categories = ["command-line-utilities", "database"]
+
+[workspace.dependencies]
+arrow = "60.1.0"
+parquet = "60.1.0"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "sync", "time", "signal"] }
+tokio-postgres = "0.7.18"
+async-trait = "0.1.92"
+futures-core = "0.3"
+futures-util = "0.3"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+serde_yaml = "0.9.34"
+thiserror = "2.0.21"
+anyhow = "1.0.104"
+csv = "1.4"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4

@@ -1,0 +1,24 @@
+version: "1.0"
+pipeline:
+  name: "single_partition_csv"
+  description: "No partitioning: one worker reads the whole query, CSV output."
+  settings:
+    max_threads: 2
+    state_file: ".ldp/single_partition_csv.json"
+  resources:
+    connections:
+      - name: "pg"
+        type: "postgres"
+        url: "env://LDP_PG_URL"
+  dataflow:
+    sources:
+      - id: "src"
+        connection: "pg"
+        query: "SELECT id, region, status FROM customers WHERE id <= 5000"
+        partitioning:
+          type: "none"
+    targets:
+      - id: "csv_out"
+        input: "src"
+        type: "csv"
+        path: "./out/single_partition_customers.csv"

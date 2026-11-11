@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: fmt + clippy + unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ldp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          # Pinned: clippy gains new lints over time and `-D warnings` would
+          # otherwise turn an unrelated Rust release into a red build.
+          toolchain: "1.99.1"
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ldp
+      - name: Formatting
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Unit tests
+        # LDP_TEST_PG_URL is intentionally unset here: the integration tests
+        # explain themselves and return, so this job needs no database.
+        run: cargo test --workspace
+
+  integration:
+    name: integration tests (real Postgres)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ldp
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      LDP_TEST_PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+      LDP_PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # The integration tests create and drop a shared table, so they must not
+      # run concurrently with each other.
+      RUST_TEST_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.99.1"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ldp
+      - name: Build binary
+        run: cargo build --bin ldp
+      - name: Integration tests
+        run: cargo test -p ldp-cli --test integration_postgres
+      - name: Seed a source table
+        run: |
+          psql "$LDP_PG_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          -- Must match the columns examples/01_simple_copy.yaml selects, or the
+          -- smoke run below fails on a missing column.
+          CREATE TABLE customers (
+              id         BIGINT PRIMARY KEY,
+              name       TEXT,
+              status     TEXT,
+              amount     DOUBLE PRECISION,
+              created_at TIMESTAMP,
+              region     TEXT,
+              unit_price NUMERIC(12,4)
+          );
+          INSERT INTO customers
+          SELECT g, 'customer_' || g,
+                 CASE WHEN g % 10 = 0 THEN 'CANCELLED' ELSE 'ACTIVE' END,
+                 (g % 1000)::double precision / 10.0,
+                 TIMESTAMP '2026-01-01' + (g * INTERVAL '1 minute'),
+                 (ARRAY['US','CA','MX','GB','DE'])[1 + (g % 5)],
+                 ((g % 10000)::numeric) / 100
+          FROM generate_series(1, 5000) AS g;
+          SQL
+      - name: Run a real pipeline
+        run: |
+          ./target/debug/ldp validate ../examples/01_simple_copy.yaml
+          ./target/debug/ldp run ../examples/01_simple_copy.yaml
+      - name: Install pyarrow for verification
+        run: pip install --quiet pyarrow
+      - name: Verify the output independently
+        run: |
+          python3 - <<'PY'
+          import glob
+          import pyarrow.compute as pc
+          import pyarrow.dataset as ds
+
+          files = sorted(glob.glob("out/simple_copy/*.parquet"))
+          assert files, "no parquet output produced"
+          table = ds.dataset(files, format="parquet").to_table()
+          rows = table.num_rows
+          distinct = pc.count_distinct(table.column("id")).as_py()
+          print(f"smoke: {len(files)} files, {rows} rows, {distinct} distinct")
+          assert rows == 5000, rows
+          assert distinct == 5000, distinct
+          PY

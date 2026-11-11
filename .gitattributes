@@ -1,0 +1,16 @@
+# Keep the repository byte-stable across platforms: LF in the repo, CRLF only
+# for Windows scripts.
+* text=auto
+*.rs text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+
+# Binary artefacts
+*.pdf binary
+*.zip binary
+*.db binary
+*.png binary

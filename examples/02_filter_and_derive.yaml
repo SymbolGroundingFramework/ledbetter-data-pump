@@ -1,0 +1,42 @@
+version: "1.0"
+pipeline:
+  name: "filter_and_derive"
+  description: "Active, positive-amount customers with tax and a processing timestamp."
+  settings:
+    max_threads: 4
+    state_file: ".ldp/filter_and_derive.json"
+  resources:
+    connections:
+      - name: "pg"
+        type: "postgres"
+        url: "env://LDP_PG_URL"
+  dataflow:
+    sources:
+      - id: "src"
+        connection: "pg"
+        query: "SELECT id, name, status, amount, created_at, region, unit_price FROM customers"
+        partitioning:
+          type: "range"
+          column: "id"
+          chunks: 8
+    transformations:
+      - id: "active_only"
+        input: "src"
+        type: "filter"
+        condition: "status = 'ACTIVE' AND amount > 0 AND created_at IS NOT NULL"
+      - id: "with_tax"
+        input: "active_only"
+        type: "derive"
+        fields:
+          - name: "taxed_amount"
+            expression: "amount * 1.0825"
+          - name: "processed_at"
+            expression: "now()"
+          - name: "region_label"
+            expression: "coalesce(region, 'UNKNOWN')"
+    targets:
+      - id: "out"
+        input: "with_tax"
+        type: "parquet"
+        path: "./out/filter_and_derive/"
+        compression: "zstd"
